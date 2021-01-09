@@ -17,6 +17,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 //API ENPONITS
 //Usuarios
+app.get("/", usuario.encontrarTodos);
 app.get("/api/users", usuario.encontrarTodos);
 app.post("/api/user/register", usuario.register);
 app.post("/api/user/login", usuario.signing);
@@ -27,10 +28,10 @@ app.post("/api/materias/registro", materia.registro);
 app.post("/api/materias/activar", materia.activar); //Activar o desactivar materia
 //API ENPOINTS
 
-const port = 3000
+app.set("PORT", process.env.PORT || 3000)
 
-app.listen(port, () => {
-    console.log("el servido esta vivo en el puerto http://localhost:" + port)
+app.listen(app.get("PORT"), () => {
+    console.log("el servido esta vivo")
 })
 
 module.exports = app;
