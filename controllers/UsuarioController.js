@@ -1,10 +1,10 @@
-const config = require("../secret/config.js");
-const db = require("../models");
-var jwt = require("jsonwebtoken");
-var bcrypt = require("bcryptjs");
+const db = require('../models');
+const bcrypt = require('bcryptjs');
+// Servicios
+const tokenServices = require('../services/token')
 
 
-exports.signing = async (pregunta, respuesta) => {
+exports.login = async (pregunta, respuesta, next) => {
     usuario = await db.usuarios.findOne({
         where: {
             usuario: pregunta.body.usuario
@@ -23,14 +23,7 @@ exports.signing = async (pregunta, respuesta) => {
             });
         }
 
-        var token = jwt.sign({
-            doc: user.doc,
-            usuario: user.usuario,
-            tipo_usuario: user.tipo_usuario,
-            email: user.email
-        }, config.secret, {
-            expiresIn: 8640 // 2 horas 40 minutos
-        });
+        token = tokenServices.encode(usuario.usuario, usuario.tipo_usuario)
 
         respuesta.status(200).send({ auth: true, accessToken: token });
     }).catch(error => {

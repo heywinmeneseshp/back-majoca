@@ -1,37 +1,44 @@
-const usuario = require("./controllers/User.js");
-const materia = require("./controllers/Materia.js");
-const express = require("express");
-const db = require("./models");
+const express = require('express');
+const morgan = require('morgan');
+const cors = require('cors');
+const router = require('./routes');
+const path = require('path');
+const bodyParser = require('body-parser');
 const app = express();
-const bodyParser = require("body-parser");
-const bcrypt = require("bcryptjs");
 
-app.use(function (pregunta, respuesta, next) {
-    respuesta.header("Access-Control-Allow-Origin", "*");
-    respuesta.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+// middleware de las peticiones tiny combine common dev
+app.use(morgan('dev'));
+
+app.use(function(req, res, next) {
+    // "http://localhost:3000"
+    res.header("Access-Control-Allow-Origin", "*"); 
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    res.header("Access-Control-Allow-Methods: GET, POST, PUT, HEAD, OPTIONS");
+    res.header("Access-Control-Allow-Credentials", "true");
     next();
 });
 
+app.use(cors());
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }));
 
-//API ENPONITS
-//Usuarios
-app.get("/", usuario.encontrarTodos);
-app.get("/api/users", usuario.encontrarTodos);
-app.post("/api/user/register", usuario.register);
-app.post("/api/user/login", usuario.signing);
-//Materias
-app.get("/api/materias", materia.encontrarTodos);
-app.post("/api/materias/registro", materia.registro);
-//INCOMPLETO EL ACTIVAR Y DESACTIVAR MATERIA//
-app.post("/api/materias/activar", materia.activar); //Activar o desactivar materia
-//API ENPOINTS
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')))
 
-app.set("PORT", process.env.PORT || 3000)
+app.use('/api', router);
 
-app.listen(app.get("PORT"), () => {
-    console.log("el servido esta vivo")
-})
+app.set('port', process.env.PORT || 3000);
+
+app.get('/', function(req, res) {
+    console.log("Estructura base del proyecto backend");
+    res.send("Estructura base del proyecto backend");
+});
+
+if (process.env.NODE_ENV !== 'test') {
+    app.listen(app.get('port'), () => {
+        console.log('Server on port ' + app.get('port') + ' on dev');
+    });
+}
 
 module.exports = app;
