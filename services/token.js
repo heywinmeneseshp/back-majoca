@@ -1,22 +1,22 @@
 const jwt = require('jsonwebtoken');
-const models = require('../models');
+const db = require('../models');
 const config = require('../secret/config.js');
 
 const checkToken = async (token) => {
-    let localID = null;
+    var localUser = null;
     try {
-        const _id = await jwt.decode(token);
-        localID = _id;
+        const { usuario } = await jwt.decode(token);
+        localUser = usuario;
     } catch (error) {
         return false
     };
 
-    const usuario = await models.usurios.findOne({
-        where: { usurio: localID.usuario }
+    const usuario = await db.usuarios.findOne({
+        where: { usuario: localUser }
     });
 
     if (usuario) {
-        var token = await this.encode(usurio, tipo_usuario);
+        const token = await encode(usuario);
         return token
     } else {
         return false
@@ -24,27 +24,25 @@ const checkToken = async (token) => {
 }
 
 //GENERAR TOKEN
-exports.encode = async (usuario, tipo_usuario) => {
-    var token = await jwt.sign({
-        usuario: usuario,
-        tipo_usuario: tipo_usuario
+exports.encode = async (usuario) => {
+    const token = await jwt.sign({
+        usuario: usuario.usuario,
+        tipo_usuario: usuario.tipo_usuario,
     }, config.secret, {
-        expiresIn: 8640 //2 horas 40 minutos
+        expiresIn: 3600 //2 horas 40 minutos
     });
     return token
 }
 
 //DECODIFICAR TOKEN
 exports.decode = async (token) => {
-
     try {
-        const user = await jwt.verify(token, config.secret);
-        const usuario = await models.usuarios.findOne({
-            where: { usuario: user.usuario }
+        const { usuario } = await jwt.verify(token, config.secret);
+        const user = await db.usuarios.findOne({
+            where: { usuario: usuario }
         });
-
-        if (usuario) {
-            return usuario
+        if (user) {
+            return user
         } else {
             return false
         }

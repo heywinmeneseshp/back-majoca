@@ -37,7 +37,7 @@ app.get('/', function(req, res) {
 
 if (process.env.NODE_ENV !== 'test') {
     app.listen(app.get('port'), () => {
-        console.log('Server on port ' + app.get('port') + ' on dev');
+        console.log("Server on port http://localhost:" + app.get('port') + ' on dev');
     });
 }
 
